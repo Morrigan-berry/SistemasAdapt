@@ -1,2 +1,2 @@
-# SistemasAdapt
-Proyecto de sistemas adaptativos
+# SistAdapt
+Sistemas adaptativos FFMS
