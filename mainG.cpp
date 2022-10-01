@@ -3,6 +3,9 @@
 #include <iostream>
 #include <fstream>
 #include <time.h>
+#include <vector>
+#include <string>
+#include <map>
 
 using namespace std;
 
@@ -68,11 +71,10 @@ bool check_threshold(vector<int> &sol_posRecord, float threshold,int columnas, i
 	return false;
 }
 
-void firstchoice(vector<int> &rep, vector<char> &sol, vector<int> &solRep)
-{
+void firstchoice(vector<int> &rep, vector<char> &sol, vector<int> &solRep){//repeticiones por letra de alfabeto en una columna, letra escogida , cantidad de esa escogida
+    //rep tamaño 4 siempre  ACGT -> 25 25 25 25 ej de la columna 1
 	int save = 0;
-	for (int i = 0; i < rep.size() - 1; i++)
-	{
+	for (int i = 0; i < rep.size() - 1; i++){
 		if (rep.at(i) > rep.at(i + 1))
 			save = i + 1;
 	}
@@ -92,47 +94,43 @@ void firstchoice(vector<int> &rep, vector<char> &sol, vector<int> &solRep)
 		sol.push_back('T');
 		break;
 	}
+
 }
 
 
 
 void exec (float threshold,vector<vector<char>>& mat, vector<char>& vj,vector<int>& reps_j,vector<char>& alf,vector<char>& sol,vector <int>& n_char_sol,int filas,int columnas){
-    
-    int alf1;
-	int alf2;
-	int alf3;
-	int alf4; 
     sol.clear();
     n_char_sol.clear();
-	vector<int> solRep(filas, 0);
-    
-    for (int j = 0; j < mat.at(0).size(); j++){
-		alf1=0;
-		alf2=0;
-		alf3=0;
-		alf4=0; 
+	vector<int> solRep(filas, 0);// cuantos chars difieren de la solucion en una fila 
+	float lim1 = static_cast<float>(mat.at(0).size())*threshold;
+	int lim = static_cast<int>(lim1);
+	map<char,int> repeticiones;
+    repeticiones['A'] = 0;
+	repeticiones['C'] = 0;
+	repeticiones['G'] = 0;
+	repeticiones['T'] = 0;
+    for (int j = 0; j < lim; j++){ //cada columna
 		vj.clear();
 		reps_j.clear();
-		
+
 		for (int i = 0; i < mat.size(); i++){//
-			vj.push_back(mat.at(i).at(j)); //lleno la columna
+			vj.push_back(mat.at(i).at(j)); //lleno la columna 
 		}
 		for(int k = 0; k < vj.size();k++){
-				if(vj.at(k) == alf.at(0)) alf1 ++;
-				if(vj.at(k) == alf.at(1)) alf2 ++;
-				if(vj.at(k) == alf.at(2)) alf3 ++;
-				if(vj.at(k) == alf.at(3)) alf4 ++;
-			}
-		reps_j.push_back(alf1);
-		reps_j.push_back(alf2);
-		reps_j.push_back(alf3);
-		reps_j.push_back(alf4);
+				repeticiones[vj.at(k)]++;
+		}
+		reps_j.push_back(repeticiones['A']);
+		reps_j.push_back(repeticiones['C']);
+		reps_j.push_back(repeticiones['G']);
+		reps_j.push_back(repeticiones['T']);
 		
 		firstchoice(reps_j,sol,n_char_sol);	
 		record_pos_dif(vj,j,sol,solRep);
 	}
     
     check_threshold(solRep,threshold,columnas,filas);
+	
 }
 
 
@@ -144,7 +142,7 @@ int main(int argc, char *argv[])
 	string s2=argv[2];
 	string s3=argv[3];
 	string s4=argv[4];
-	
+	// ./a.out -i 100-300 -th 0.75
 	if(s1 != "-i") return 0;
 	if(s2 !="100-300" && s2!="100-600"&&s2!="100-800"&&s2!="200-300"&&s2!="200-600"&&s2!="200-800") return 0;
 	if(s3 != "-th") return 0;
