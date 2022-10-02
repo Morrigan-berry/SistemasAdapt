@@ -47,38 +47,32 @@ void printMatrix(vector<vector<char>> &vec)
 	}
 }
 
-void record_pos_dif(vector<char>& inst, int pos, vector<char>& solucion, vector<int>& sol_posRecord)
+void record_pos_dif(vector<char>& inst, int pos, vector<char>& solucion, vector<int>& char_dif_x_fila)
 {
 	// cout<<" "<<inst.size()<<" "<< solucion.size()<<" ";
 	for (int i = 0; i < inst.size(); i++){
-		if (inst.at(i) != solucion.at(pos)) sol_posRecord.at(i) += 1;
+		if (inst.at(i) != solucion.at(pos)) char_dif_x_fila.at(i) += 1;
 	}
 }
 
-bool check_threshold(vector<int> &sol_posRecord, float threshold,int columnas, int filas){ // sol_posrecord size es 100
-	float convert;// flotante para convertir el int de cada sol_porecord a un flotante
+bool notificar(vector<int> &sol_posRecord, int limite,int columnas, int filas){ // sol_posrecord size es 100
 	int total = 0; //cuantas filas cumplen con el threshold
-	int compareth = static_cast<int>(threshold * 100); //convierte el threshold a un nro entero
-	// cout<< "compareth: "<<compareth<<endl;
-	for (int i = 0; i < sol_posRecord.size(); i++)
-	{
-		convert = (float)sol_posRecord.at(i) / columnas;
-		// cout<<"convert: "<< convert<<endl;
-		if (convert > threshold || abs(threshold - convert) < 1e-9) total += 1;
-		
+	// cout<< "compare_th: "<<compare_th<<endl;
+	for (int i = 0; i < sol_posRecord.size(); i++){
+		//cout<<"FILA: "<<i<< " valor: "<<sol_posRecord.at(i)<<" ";
+		if (sol_posRecord[i] >= limite ) total += 1;
 	}
 	cout<<total<<" de "<< filas <<"strings cumplen con el threshold"<<endl;
 	return false;
 }
 
-void firstchoice(vector<int> &rep, vector<char> &sol, vector<int> &solRep){//repeticiones por letra de alfabeto en una columna, letra escogida , cantidad de esa escogida
-    //rep tamaño 4 siempre  ACGT -> 25 25 25 25 ej de la columna 1
+void firstchoice(vector<int> &rep, vector<char> &sol, vector<int> &n_char_sol){//repeticiones por letra de alfabeto en una columna, letra escogida , cantidad de esa escogida
 	int save = 0;
 	for (int i = 0; i < rep.size() - 1; i++){
 		if (rep.at(i) > rep.at(i + 1))
 			save = i + 1;
 	}
-	solRep.push_back(rep.at(save));
+	n_char_sol.push_back(rep.at(save));
 	switch (save)
 	{
 	case 0:
@@ -98,24 +92,23 @@ void firstchoice(vector<int> &rep, vector<char> &sol, vector<int> &solRep){//rep
 }
 
 
-
+//resuelve un archivo de texto. una instancia.
 void exec (float threshold,vector<vector<char>>& mat, vector<char>& vj,vector<int>& reps_j,vector<char>& alf,vector<char>& sol,vector <int>& n_char_sol,int filas,int columnas){
-    sol.clear();
-    n_char_sol.clear();
+    sol.clear(); //se limpia el vector solucion
+    n_char_sol.clear(); 
 	vector<int> solRep(filas, 0);// cuantos chars difieren de la solucion en una fila 
 	float lim1 = static_cast<float>(mat.at(0).size())*threshold;
-	int lim = static_cast<int>(lim1);
-	map<char,int> repeticiones;
-    repeticiones['A'] = 0;
-	repeticiones['C'] = 0;
-	repeticiones['G'] = 0;
-	repeticiones['T'] = 0;
-    for (int j = 0; j < lim; j++){ //cada columna
+	int lim = static_cast<int>(lim1); //threshold traducido a cantidad de caracteres 
+	map<char,int> repeticiones;// mapa para saber cuanto se repiten los caracteres del alfabeto, se actualiza x columna
+    for (int j = 0; j < lim; j++){ // x columna
 		vj.clear();
 		reps_j.clear();
-
+		repeticiones['A'] = 0;
+		repeticiones['C'] = 0;
+		repeticiones['G'] = 0;
+		repeticiones['T'] = 0;
 		for (int i = 0; i < mat.size(); i++){//
-			vj.push_back(mat.at(i).at(j)); //lleno la columna 
+			vj.push_back(mat.at(i).at(j)); //lleno la columna actual 
 		}
 		for(int k = 0; k < vj.size();k++){
 				repeticiones[vj.at(k)]++;
@@ -128,9 +121,32 @@ void exec (float threshold,vector<vector<char>>& mat, vector<char>& vj,vector<in
 		firstchoice(reps_j,sol,n_char_sol);	
 		record_pos_dif(vj,j,sol,solRep);
 	}
-    
-    check_threshold(solRep,threshold,columnas,filas);
 	
+
+	for (int j = lim; j < mat.at(0).size(); j++){
+		repeticiones['A'] = 0; //reciclamos el mapa repeticiones a un mapa de puntajes por 
+		repeticiones['C'] = 0;// letra a medida de que se revise una columna
+		repeticiones['G'] = 0;
+		repeticiones['T'] = 0;
+		for (int i = 0; i < filas; i++){
+			for (map<char,int>::iterator it= repeticiones.begin();  it != repeticiones.end(); it++){//taamaño del alfabeto
+				int aux = 0;
+				if (it->first != mat.at(i).at(j)){
+					it->second++;
+					aux = solRep[i];
+					aux++;
+				}
+				if(aux >= lim) it->second++;
+			}//termina for de 4 pasadas	
+		}//termino for de filas
+		auto pr = max_element(repeticiones.begin(),repeticiones.end(),[](const auto &x, const auto &y){
+			return x.second < y.second; // funcion para comṕarar valores del mapa
+		});
+		//cout<<"letra escogida para iteracion :"<< j <<" "<<pr->first<<" puntaje: "<<pr->second<<endl;
+		sol.push_back(pr->first);
+	}
+    notificar(solRep,lim,columnas,filas);
+
 }
 
 
@@ -206,11 +222,11 @@ int main(int argc, char *argv[])
 
 
 	vector<char> v_j;	  // vector columna en el que se esta trabajando
-	vector<char> s_g;	  // greedy
-	vector<int> scount_g; // cantidad de la letra elegida.
+	vector<char> s_g;	  // solucion greedy
+	vector<int> scount_g; // cantidad de la letra elegida en una iteracion de columna VJ.
 	 // vector de 100 pos cada una representa la fila i de cada instancia y muestra en
 	// cuantas casillas difiere de la solucion
-	int instancia = 1;
+	
 
 	vector<int> rep_j; // vector con repeticiones tamaño 4
 
