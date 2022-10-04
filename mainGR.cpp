@@ -232,7 +232,6 @@ void local_search(vector<char>& sol,vector<vector<char>>& mat,float th,vector<ch
 	float old_media = static_cast<float>(count/sol_posRecord.size());
 	float new_media;
 	vector<vector<char>> vecindades;
-	float limit;
 	while(true){
 		auto ini = chrono::high_resolution_clock::now();
 		
