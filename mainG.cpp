@@ -368,28 +368,11 @@ int main(int argc, char *argv[])
 	cout<<"Desviacion "<<desviacion<<endl;
 	return 0;
 }
-/*for (int i = 0; i < s_g.size(); ++i){
-	cout<<s_g.at(i);
-}
-cout<<endl;
-for (int i = 0; i < scount_g.size(); ++i){
-	cout<<scount_g.at(i)<<" ";
-}
-cout<<endl;*/
-
-/*for (int i = 0; i < s_gr.size(); ++i){
-	cout<<s_gr.at(i);
-}
-cout<<endl;
-for (int i = 0; i < scount_gr.size(); ++i){
-	cout<<scount_gr.at(i)<<" ";
-}
-cout<<endl;
-printMatrix(vec);
+/*
 
 
 void randomchoice(vector<int>& rep,vector<char>& sol,vector<int>& solRep){
-	int save=0; // posición elegida 
+	int save = 0; // posición elegida 
 	vector<int> tie_vec;//vector con los empates guarda 0,1,2,3 siendo las letras empatadas
 	for (int i = 0; i < rep.size()-1; i++){ //encuentro el suspuesto menor 
 		if(rep.at(i) > rep.at(i+1)) save = i+1;
@@ -420,7 +403,5 @@ void randomchoice(vector<int>& rep,vector<char>& sol,vector<int>& solRep){
 		break;
 	}
 }
-
-
 
 */
